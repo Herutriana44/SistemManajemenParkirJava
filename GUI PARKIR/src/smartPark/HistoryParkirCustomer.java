@@ -1,10 +1,13 @@
 package smartPark;
+import javax.swing.table.DefaultTableModel;
 
 public class HistoryParkirCustomer extends javax.swing.JFrame {
-
+    RoleModel roleModel;
     public HistoryParkirCustomer() {
         initComponents();
         setTitle("History Customer");
+        roleModel = new RoleModel();
+        loadParkingHistory();
     }
 
     /**
@@ -134,6 +137,23 @@ public class HistoryParkirCustomer extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
+    private void loadParkingHistory() {
+    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+    model.setRowCount(0); // Clear existing rows
+
+    // Fetch parking history and populate the table
+    for (String[] history : roleModel.searchParkingHistoryByIdUser(roleModel.getIdUser())) {
+        model.addRow(new Object[]{
+            history[0], // Slot
+            history[1], // Plat Nomor
+            history[2], // Tanggal
+            history[3], // Waktu Masuk
+            history[4], // Waktu Keluar
+            history[5]  // Durasi Parkir
+        });
+    }
+}
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

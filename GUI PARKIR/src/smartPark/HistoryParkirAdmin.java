@@ -1,10 +1,14 @@
 package smartPark;
+import javax.swing.table.DefaultTableModel;
 
 public class HistoryParkirAdmin extends javax.swing.JFrame {
-
+    
+    RoleModel roleModel;
     public HistoryParkirAdmin() {
         initComponents();
         setTitle("History Admin");
+        roleModel = new RoleModel();
+        loadParkingHistory();
     }
 
     /**
@@ -155,6 +159,52 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
+    private void loadParkingHistory() {
+    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+    model.setRowCount(0); // Clear existing rows
+
+    // Fetch parking history and populate the table
+    for (String[] history : roleModel.getParkingHistory()) {
+        model.addRow(new Object[]{
+            history[0], // Slot
+            history[1], // Plat Nomor
+            history[2], // Tanggal
+            history[3], // Waktu Masuk
+            history[4], // Waktu Keluar
+            history[5]  // Durasi Parkir
+        });
+    }
+}
+
+// Search Method to filter by "Plat Nomor"
+private void searchByPlateNumber() {
+    String searchKey = jTextField1.getText().trim();
+    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+    model.setRowCount(0); // Clear existing data
+
+    // Fetch filtered parking history and populate the table
+    for (String[] history : roleModel.searchParkingHistoryByPlateNumber(searchKey)) {
+        model.addRow(new Object[]{
+            history[0], // Slot
+            history[1], // Plat Nomor
+            history[2], // Tanggal
+            history[3], // Waktu Masuk
+            history[4], // Waktu Keluar
+            history[5]  // Durasi Parkir
+        });
+    }
+}
+
+// Call this method in the constructor or when the "Tampilkan Data" button is clicked
+private void tampilkanDataActionPerformed(java.awt.event.ActionEvent evt) {
+    loadParkingHistory();
+}
+
+// Call this method when the search button is clicked
+private void cariActionPerformed(java.awt.event.ActionEvent evt) {
+    searchByPlateNumber();
+}
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

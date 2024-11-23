@@ -1,10 +1,14 @@
 package smartPark;
+import javax.swing.table.DefaultTableModel;
 
 public class DataUserAdmin extends javax.swing.JFrame {
-
+    
+    RoleModel roleModel;
     public DataUserAdmin() {
         initComponents();
         setTitle("Data User");
+        roleModel = new RoleModel();
+        loadUserData(); // Load data when the form initializes
     }
 
     /**
@@ -25,7 +29,7 @@ public class DataUserAdmin extends javax.swing.JFrame {
         jTextField3 = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
+        KeluarBTN = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -70,7 +74,12 @@ public class DataUserAdmin extends javax.swing.JFrame {
 
         jButton5.setText("Tampilkan Data");
 
-        jButton6.setText("Keluar");
+        KeluarBTN.setText("Keluar");
+        KeluarBTN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                KeluarBTNActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
@@ -89,7 +98,7 @@ public class DataUserAdmin extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton6)))
+                        .addComponent(KeluarBTN)))
                 .addContainerGap())
         );
         jPanel5Layout.setVerticalGroup(
@@ -102,7 +111,7 @@ public class DataUserAdmin extends javax.swing.JFrame {
                     .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
                     .addComponent(jButton5)
-                    .addComponent(jButton6))
+                    .addComponent(KeluarBTN))
                 .addContainerGap(10, Short.MAX_VALUE))
         );
 
@@ -141,9 +150,33 @@ public class DataUserAdmin extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void KeluarBTNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_KeluarBTNActionPerformed
+        // TODO add your handling code here:
+        dispose();
+        new PilihanAdmin().setVisible(true);
+    }//GEN-LAST:event_KeluarBTNActionPerformed
+
     /**
      * @param args the command line arguments
      */
+    private void loadUserData() {
+        DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
+        model.setRowCount(0); // Clear any existing rows
+
+        for (String[] user : roleModel.getAllUsers()) {
+            model.addRow(new Object[]{user[0], user[1], user[2]}); // Mask password
+        }
+    }
+    private void searchByUsername() {
+        String searchKey = jTextField3.getText().trim();
+        DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
+        model.setRowCount(0); // Clear current data
+
+        for (String[] user : roleModel.searchUsersByUsername(searchKey)) {
+            model.addRow(new Object[]{user[0], user[1], user[2]}); // Mask password
+        }
+    }
+    
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -178,8 +211,8 @@ public class DataUserAdmin extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton KeluarBTN;
     private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
