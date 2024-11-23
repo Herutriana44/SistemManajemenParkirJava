@@ -28,7 +28,7 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
         jTable1 = new javax.swing.JTable();
         jTextField1 = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
+        searchBtn = new javax.swing.JButton();
         kembaliBT = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -72,7 +72,12 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
 
         jLabel2.setText("Cari");
 
-        jButton2.setText("Tampilkan Data");
+        searchBtn.setText("Tampilkan Data");
+        searchBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchBtnActionPerformed(evt);
+            }
+        });
 
         kembaliBT.setText("Kembali");
         kembaliBT.addActionListener(new java.awt.event.ActionListener() {
@@ -96,7 +101,7 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton2)
+                        .addComponent(searchBtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(kembaliBT)))
                 .addContainerGap())
@@ -110,7 +115,7 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(jButton2)
+                    .addComponent(searchBtn)
                     .addComponent(kembaliBT))
                 .addContainerGap(10, Short.MAX_VALUE))
         );
@@ -156,6 +161,11 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
         new LahanParkirAdmin().setVisible(true);
     }//GEN-LAST:event_kembaliBTActionPerformed
 
+    private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
+        // TODO add your handling code here:
+        searchByPlateNumber();
+    }//GEN-LAST:event_searchBtnActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -196,14 +206,14 @@ private void searchByPlateNumber() {
 }
 
 // Call this method in the constructor or when the "Tampilkan Data" button is clicked
-private void tampilkanDataActionPerformed(java.awt.event.ActionEvent evt) {
-    loadParkingHistory();
-}
-
-// Call this method when the search button is clicked
-private void cariActionPerformed(java.awt.event.ActionEvent evt) {
-    searchByPlateNumber();
-}
+//private void tampilkanDataActionPerformed(java.awt.event.ActionEvent evt) {
+//    loadParkingHistory();
+//}
+//
+//// Call this method when the search button is clicked
+//private void cariActionPerformed(java.awt.event.ActionEvent evt) {
+//    searchByPlateNumber();
+//}
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -241,7 +251,6 @@ private void cariActionPerformed(java.awt.event.ActionEvent evt) {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
@@ -251,5 +260,6 @@ private void cariActionPerformed(java.awt.event.ActionEvent evt) {
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JButton kembaliBT;
+    private javax.swing.JButton searchBtn;
     // End of variables declaration//GEN-END:variables
 }
