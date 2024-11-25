@@ -1,14 +1,72 @@
 package smartPark;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JOptionPane;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 
 public class DataUserAdmin extends javax.swing.JFrame {
-    
     RoleModel roleModel;
+    private String UsernameLama = "";
+ 
+    
+     // Metode untuk memuat data pengguna ke dalam tabel
+    public void loadUserData() {
+        // Membuat DefaultTableModel yang tidak bisa diedit pada kolom tertentu
+        DefaultTableModel model = new DefaultTableModel(new String[]{"username", "password", "status"}, 0);
+
+        dataTabel.setModel(model); // Set model baru ke dataTabel
+        model.setRowCount(0); // Hapus baris yang ada
+
+        // Mengisi tabel dengan data pengguna
+        for (String[] user : roleModel.getAllUsers()) {
+            model.addRow(new Object[]{user[0], user[1], user[2]}); // Mengisi tabel dengan data user
+        }
+
+        // Listener untuk mendeteksi perubahan baris yang dipilih
+        dataTabel.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int selectedRow = dataTabel.getSelectedRow();
+                if (selectedRow != -1) {
+                    // Ambil UsernameLama dari baris yang dipilih
+                    UsernameLama = model.getValueAt(selectedRow, 0).toString();
+                }
+            }
+        });
+        // Menambahkan listener untuk mendeteksi perubahan data pada tabel
+        model.addTableModelListener(e -> {
+            if (e.getType() == TableModelEvent.UPDATE) {
+                int row = e.getFirstRow();
+                int column = e.getColumn();
+
+                // Ambil data dari baris yang telah diubah
+                String newUsername = model.getValueAt(row, 0).toString(); // Username baru
+                String newPassword = model.getValueAt(row, 1).toString(); // Password baru
+                String newStatus = model.getValueAt(row, 2).toString(); // Status baru
+                roleModel.setIdUser(UsernameLama);
+                String userId = roleModel.getIdUser();
+
+                // Panggil metode updateUserDataInDatabase di roleModel
+                roleModel.updateUserDataInDatabase(userId, newUsername, newPassword, newStatus);               
+            }
+        });
+    }
+    
     public DataUserAdmin() {
         initComponents();
         setTitle("Data User");
         roleModel = new RoleModel();
-        loadUserData(); // Load data when the form initializes
+        loadUserData();
+        cariTF.addMouseListener(new MouseAdapter() {
+        private boolean clicked = false;
+            public void mouseClicked(MouseEvent e) {
+                if (!clicked) {
+                    cariTF.setText("");
+                    clicked = true;
+                }
+            }
+        });
     }
 
     /**
@@ -25,8 +83,8 @@ public class DataUserAdmin extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jPanel5 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
-        jTextField3 = new javax.swing.JTextField();
+        dataTabel = new javax.swing.JTable();
+        cariTF = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         searchBTN = new javax.swing.JButton();
         KeluarBTN = new javax.swing.JButton();
@@ -55,7 +113,7 @@ public class DataUserAdmin extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+        dataTabel.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null},
                 {null, null, null},
@@ -66,9 +124,14 @@ public class DataUserAdmin extends javax.swing.JFrame {
                 "Username", "Password", "Status"
             }
         ));
-        jScrollPane3.setViewportView(jTable3);
+        jScrollPane3.setViewportView(dataTabel);
 
-        jTextField3.setText("*Bedasarkan Username");
+        cariTF.setText("*Bedasarkan Username");
+        cariTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cariTFActionPerformed(evt);
+            }
+        });
 
         jLabel4.setText("Cari");
 
@@ -99,7 +162,7 @@ public class DataUserAdmin extends javax.swing.JFrame {
                         .addGap(12, 12, 12)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cariTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(searchBTN)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -113,7 +176,7 @@ public class DataUserAdmin extends javax.swing.JFrame {
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 386, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cariTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
                     .addComponent(searchBTN)
                     .addComponent(KeluarBTN))
@@ -166,20 +229,18 @@ public class DataUserAdmin extends javax.swing.JFrame {
         searchByUsername();
     }//GEN-LAST:event_searchBTNActionPerformed
 
+    private void cariTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cariTFActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cariTFActionPerformed
+
     /**
      * @param args the command line arguments
      */
-    private void loadUserData() {
-        DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
-        model.setRowCount(0); // Clear any existing rows
+    
 
-        for (String[] user : roleModel.getAllUsers()) {
-            model.addRow(new Object[]{user[0], user[1], user[2]}); // Mask password
-        }
-    }
     private void searchByUsername() {
-        String searchKey = jTextField3.getText().trim();
-        DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
+        String searchKey = cariTF.getText().trim();
+        DefaultTableModel model = (DefaultTableModel) dataTabel.getModel();
         model.setRowCount(0); // Clear current data
 
         for (String[] user : roleModel.searchUsersByUsername(searchKey)) {
@@ -222,14 +283,14 @@ public class DataUserAdmin extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton KeluarBTN;
+    private javax.swing.JTextField cariTF;
+    private javax.swing.JTable dataTabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTable jTable3;
-    private javax.swing.JTextField jTextField3;
     private javax.swing.JButton searchBTN;
     // End of variables declaration//GEN-END:variables
 }

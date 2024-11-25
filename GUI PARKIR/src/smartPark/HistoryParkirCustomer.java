@@ -138,21 +138,31 @@ public class HistoryParkirCustomer extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     private void loadParkingHistory() {
-    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-    model.setRowCount(0); // Clear existing rows
+        // Membuat DefaultTableModel yang tidak bisa diedit
+        DefaultTableModel model = new DefaultTableModel(new String[]{"Slot", "Plat Nomor", "Tanggal", "Waktu Masuk", "Waktu Keluar", "Durasi Parkir"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // Semua sel tidak dapat diedit
+                return false;
+            }
+        };
 
-    // Fetch parking history and populate the table
-    for (String[] history : roleModel.searchParkingHistoryByIdUser(roleModel.getIdUser())) {
-        model.addRow(new Object[]{
-            history[0], // Slot
-            history[1], // Plat Nomor
-            history[2], // Tanggal
-            history[3], // Waktu Masuk
-            history[4], // Waktu Keluar
-            history[5]  // Durasi Parkir
-        });
+        jTable1.setModel(model); // Set model baru ke jTable1
+        model.setRowCount(0); // Hapus baris yang ada
+
+        // Fetch parking history dan isi tabel
+        for (String[] history : roleModel.historyParkingCustomer(roleModel.getIdUser())) {
+            model.addRow(new Object[]{
+                history[0], // Slot
+                history[1], // Plat Nomor
+                history[2], // Tanggal
+                history[3], // Waktu Masuk
+                history[4], // Waktu Keluar
+                history[5]  // Durasi Parkir
+            });
+        }
     }
-}
+
     
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

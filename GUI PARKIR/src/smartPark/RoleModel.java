@@ -93,120 +93,118 @@ public class RoleModel {
     }
 
     // Method untuk cek in customer (mengisi slot parkir)
-public void cekIn(String platNomor, String slot, String idUser) {
-    String queryUpdateSlot = "UPDATE ketersediaan SET tersedia = 0, platNomor = ?, idUser = ? WHERE idSlot = ? AND tersedia = 1";
-    String queryInsertHistory = "INSERT INTO history_parkir (idSlot, platNomor, idUser, tanggal, entryTime) VALUES (?, ?, ?, CURDATE(), NOW())";
+    public void cekIn(String platNomor, String slot, String idUser) {
+        String queryUpdateSlot = "UPDATE ketersediaan SET tersedia = 0, platNomor = ?, idUser = ? WHERE idSlot = ? AND tersedia = 1";
+        String queryInsertHistory = "INSERT INTO history_parkir (idSlot, platNomor, idUser, tanggal, entryTime) VALUES (?, ?, ?, CURDATE(), NOW())";
 
-    try (PreparedStatement stmtUpdateSlot = connect.prepareStatement(queryUpdateSlot);
-         PreparedStatement stmtInsertHistory = connect.prepareStatement(queryInsertHistory)) {
-        
-        // Update slot availability
-        stmtUpdateSlot.setString(1, platNomor);
-        stmtUpdateSlot.setString(2, idUser);
-        stmtUpdateSlot.setString(3, slot);
-        int rowsUpdated = stmtUpdateSlot.executeUpdate();
+        try (PreparedStatement stmtUpdateSlot = connect.prepareStatement(queryUpdateSlot);
+             PreparedStatement stmtInsertHistory = connect.prepareStatement(queryInsertHistory)) {
 
-        if (rowsUpdated != 0) {
-            // Insert into history
-            stmtInsertHistory.setString(1, slot);
-            stmtInsertHistory.setString(2, platNomor);
-            stmtInsertHistory.setString(3, idUser);
-            stmtInsertHistory.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Berhasil cek in di slot " + slot);
-        } else {
-            JOptionPane.showMessageDialog(null, "Slot " + slot + " sudah terisi!");
+            // Update slot availability
+            stmtUpdateSlot.setString(1, platNomor);
+            stmtUpdateSlot.setString(2, idUser);
+            stmtUpdateSlot.setString(3, slot);
+            int rowsUpdated = stmtUpdateSlot.executeUpdate();
+
+            if (rowsUpdated != 0) {
+                // Insert into history
+                stmtInsertHistory.setString(1, slot);
+                stmtInsertHistory.setString(2, platNomor);
+                stmtInsertHistory.setString(3, idUser);
+                stmtInsertHistory.executeUpdate();
+                JOptionPane.showMessageDialog(null, "Berhasil cek in di slot " + slot);
+            } else {
+                JOptionPane.showMessageDialog(null, "Slot " + slot + " sudah terisi!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Gagal melakukan cek in!");
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Gagal melakukan cek in!");
     }
-}
 
-// Method untuk cek in admin (mengisi slot parkir)
-public void cekIn(String slot, String idUser) {
-    String queryUpdateSlot = "UPDATE ketersediaan SET tersedia = 0, idUser = ? WHERE idSlot = ? AND tersedia = 1";
-    String queryInsertHistory = "INSERT INTO history_parkir (idSlot, platNomor, idUser, tanggal, entryTime) VALUES (?, ?, CURDATE(), NOW())";
+    // Method untuk cek in admin (mengisi slot parkir)
+    public void cekIn(String slot, String idUser) {
+        String queryUpdateSlot = "UPDATE ketersediaan SET tersedia = 0, idUser = NULL WHERE idSlot = ? AND tersedia = 1";
+        String queryInsertHistory = "INSERT INTO history_parkir (idSlot, platNomor, idUser, tanggal, entryTime) VALUES (?, 'Admin', ?, CURDATE(), NOW())";
 
-    try (PreparedStatement stmtUpdateSlot = connect.prepareStatement(queryUpdateSlot);
-         PreparedStatement stmtInsertHistory = connect.prepareStatement(queryInsertHistory)) {
-        
-        // Update slot availability
-        stmtUpdateSlot.setString(1, idUser);
-        stmtUpdateSlot.setString(2, slot);
-        int rowsUpdated = stmtUpdateSlot.executeUpdate();
+        try (PreparedStatement stmtUpdateSlot = connect.prepareStatement(queryUpdateSlot);
+             PreparedStatement stmtInsertHistory = connect.prepareStatement(queryInsertHistory)) {
 
-        if (rowsUpdated != 0) {
-            // Insert into history
-            stmtInsertHistory.setString(1, slot);
-            stmtInsertHistory.setString(2, idUser);
-            stmtInsertHistory.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Berhasil menutup slot " + slot);
-        } else {
-            JOptionPane.showMessageDialog(null, "Slot " + slot + " sudah tertutup!");
+            // Update slot availability
+            stmtUpdateSlot.setString(1, slot);
+            int rowsUpdated = stmtUpdateSlot.executeUpdate();
+
+            if (rowsUpdated != 0) {
+                // Insert into history
+                stmtInsertHistory.setString(1, slot);
+                stmtInsertHistory.setString(2, idUser);
+                stmtInsertHistory.executeUpdate();
+                JOptionPane.showMessageDialog(null, "Berhasil menutup slot " + slot);
+            } else {
+                JOptionPane.showMessageDialog(null, "Slot " + slot + " sudah tertutup!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "gagal menutup slot");
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Slot sudah terbuka");
     }
-}
 
-// Method untuk cek out customer (mengosongkan slot parkir)
-public void cekOut(String platNomor, String slot, String idUser) {
-    String queryUpdateSlot = "UPDATE ketersediaan SET tersedia = 1, platNomor = NULL, idUser = NULL WHERE idSlot = ? AND platNomor = ? AND idUser = ? AND tersedia = 0";
-    String queryUpdateHistory = "UPDATE history_parkir SET exitTime = NOW(), durasiParkir = TIMESTAMPDIFF(MINUTE, entryTime, NOW()) WHERE idSlot = ? AND platNomor = ? AND idUser = ? AND exitTime IS NULL";
+    // Method untuk cek out customer (mengosongkan slot parkir)
+    public void cekOut(String platNomor, String slot, String idUser) {
+        String queryUpdateSlot = "UPDATE ketersediaan SET tersedia = 1, platNomor = NULL, idUser = NULL WHERE idSlot = ? AND platNomor = ? AND idUser = ? AND tersedia = 0";
+        String queryUpdateHistory = "UPDATE history_parkir SET exitTime = NOW(), durasiParkir = TIMESTAMPDIFF(MINUTE, entryTime, NOW()) WHERE idSlot = ? AND platNomor = ? AND idUser = ? AND exitTime IS NULL";
 
-    try (PreparedStatement stmtUpdateSlot = connect.prepareStatement(queryUpdateSlot);
-         PreparedStatement stmtUpdateHistory = connect.prepareStatement(queryUpdateHistory)) {
-        
-        // Update slot availability
-        stmtUpdateSlot.setString(1, slot);
-        stmtUpdateSlot.setString(2, platNomor);
-        stmtUpdateSlot.setString(3, idUser);
-        int rowsUpdated = stmtUpdateSlot.executeUpdate();
+        try (PreparedStatement stmtUpdateSlot = connect.prepareStatement(queryUpdateSlot);
+             PreparedStatement stmtUpdateHistory = connect.prepareStatement(queryUpdateHistory)) {
 
-        if (rowsUpdated != 0) {
-            // Update history
-            stmtUpdateHistory.setString(1, slot);
-            stmtUpdateHistory.setString(2, platNomor);
-            stmtUpdateHistory.setString(3, idUser);
-            stmtUpdateHistory.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Berhasil melakukan cek out pada slot " + slot + "!");
-        } else {
-            JOptionPane.showMessageDialog(null, "Plat Nomor atau ID User salah!");
+            // Update slot availability
+            stmtUpdateSlot.setString(1, slot);
+            stmtUpdateSlot.setString(2, platNomor);
+            stmtUpdateSlot.setString(3, idUser);
+            int rowsUpdated = stmtUpdateSlot.executeUpdate();
+
+            if (rowsUpdated != 0) {
+                // Update history
+                stmtUpdateHistory.setString(1, slot);
+                stmtUpdateHistory.setString(2, platNomor);
+                stmtUpdateHistory.setString(3, idUser);
+                stmtUpdateHistory.executeUpdate();
+                JOptionPane.showMessageDialog(null, "Berhasil melakukan cek out pada slot " + slot + "!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Plat Nomor atau ID User salah!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Gagal melakukan cek out!");
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Gagal melakukan cek out!");
     }
-}
 
-// Method untuk cek out admin (mengosongkan slot parkir)
-public void cekOut(String slot, String idUser) {
-    String queryUpdateSlot = "UPDATE ketersediaan SET tersedia = 1, platNomor = NULL, idUser = NULL WHERE idSlot = ? AND idUser = ? AND tersedia = 0";
-    String queryUpdateHistory = "UPDATE history_parkir SET waktu_keluar = NOW(), durasiParkir = TIMESTAMPDIFF(MINUTE, waktu_masuk, NOW()) WHERE slot = ? AND id_user = ? AND waktu_keluar IS NULL";
+    // Method untuk cek out admin (mengosongkan slot parkir)
+    public void cekOut(String slot, String idUser) {
+        String queryUpdateSlot = "UPDATE ketersediaan SET tersedia = 1, platNomor = NULL, idUser = NULL WHERE idSlot = ? AND tersedia = 0";
+        String queryUpdateHistory = "UPDATE history_parkir SET exitTime = NOW(), durasiParkir = TIMESTAMPDIFF(MINUTE, entryTime, NOW()) WHERE idSlot = ? AND idUser = ? AND exitTime IS NULL";
 
-    try (PreparedStatement stmtUpdateSlot = connect.prepareStatement(queryUpdateSlot);
-         PreparedStatement stmtUpdateHistory = connect.prepareStatement(queryUpdateHistory)) {
-        
-        // Update slot availability
-        stmtUpdateSlot.setString(1, slot);
-        stmtUpdateSlot.setString(2, idUser);
-        int rowsUpdated = stmtUpdateSlot.executeUpdate();
+        try (PreparedStatement stmtUpdateSlot = connect.prepareStatement(queryUpdateSlot);
+             PreparedStatement stmtUpdateHistory = connect.prepareStatement(queryUpdateHistory)) {
 
-        if (rowsUpdated != 0) {
-            // Update history
-            stmtUpdateHistory.setString(1, slot);
-            stmtUpdateHistory.setString(2, idUser);
-            stmtUpdateHistory.executeUpdate();
-            JOptionPane.showMessageDialog(null, "Berhasil membuka slot " + slot + "!");
-        } else {
-            JOptionPane.showMessageDialog(null, "Slot " + slot + " sudah terbuka!");
+            // Update slot availability
+            stmtUpdateSlot.setString(1, slot);
+            int rowsUpdated = stmtUpdateSlot.executeUpdate();
+
+            if (rowsUpdated != 0) {
+                // Update history
+                stmtUpdateHistory.setString(1, slot);
+                stmtUpdateHistory.setString(2, idUser);
+                stmtUpdateHistory.executeUpdate();
+                JOptionPane.showMessageDialog(null, "Berhasil membuka slot " + slot + "!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Slot " + slot + " sudah terbuka!");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "gagal membuka slot!");
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "Gagal melakukan cek out!");
     }
-}
 
 
     public boolean tersedia(String idSlot) {
@@ -268,84 +266,124 @@ public void cekOut(String slot, String idUser) {
 
         return users;
     }
+    
     public List<String[]> getParkingHistory() {
-    List<String[]> historyList = new ArrayList<>();
-    String query = "SELECT idSlot, platNomor,tanggal, entryTime, exitTime, " +
-                   "TIMESTAMPDIFF(MINUTE, entryTime, exitTime) AS durasiParkir " +
-                   "FROM history_parkir";
+        List<String[]> historyList = new ArrayList<>();
+        String query = "SELECT h.idSlot, h.platNomor, u.username, h.tanggal, h.entryTime, h.exitTime, " +
+                       "TIMESTAMPDIFF(MINUTE, h.entryTime, h.exitTime) AS durasiParkir " +
+                       "FROM history_parkir h LEFT JOIN user u ON h.idUser = u.idUser";
 
-    try (PreparedStatement preparedStatement = connect.prepareStatement(query);
-         ResultSet resultSet = preparedStatement.executeQuery()) {
+        try (PreparedStatement preparedStatement = connect.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
-        while (resultSet.next()) {
-            String slot = resultSet.getString("idSlot");
-            String platNomor = resultSet.getString("platNomor");
-            String tanggal = resultSet.getString("tanggal");
-            String waktuMasuk = resultSet.getString("entryTime");
-            String waktuKeluar = resultSet.getString("exitTime");
-            String durasiParkir = resultSet.getString("durasiParkir") + " menit";
+            while (resultSet.next()) {
+                String slot = resultSet.getString("idSlot");
+                String platNomor = resultSet.getString("platNomor");
+                String username = resultSet.getString("username"); // Ambil username
+                String tanggal = resultSet.getString("tanggal");
+                String waktuMasuk = resultSet.getString("entryTime");
+                String waktuKeluar = resultSet.getString("exitTime");
+                int durasiParkir = resultSet.getInt("durasiParkir"); // Durasinya dalam menit
 
-            historyList.add(new String[]{slot, platNomor, tanggal, waktuMasuk, waktuKeluar, durasiParkir});
+                // Format durasi parkir dalam menit
+                String durasiParkirString = durasiParkir + " menit";
+
+                // Tambahkan data ke dalam list
+                historyList.add(new String[]{slot, platNomor, username, tanggal, waktuMasuk, waktuKeluar, durasiParkirString});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+
+        return historyList;
     }
+    
+    public List<String[]> searchParkingHistoryByPlateNumber(String plateNumber) {
+        List<String[]> filteredList = new ArrayList<>();
+        String query = "SELECT h.idSlot, h.platNomor, u.username, h.tanggal, h.entryTime, h.exitTime, " +
+                       "TIMESTAMPDIFF(MINUTE, h.entryTime, h.exitTime) AS durasiParkir " +
+                       "FROM history_parkir h " +
+                       "LEFT JOIN user u ON h.idUser = u.idUser " +
+                       "WHERE h.platNomor LIKE ?";
 
-    return historyList;
-}
+        try (PreparedStatement preparedStatement = connect.prepareStatement(query)) {
 
-public List<String[]> searchParkingHistoryByPlateNumber(String plateNumber) {
-    List<String[]> filteredList = new ArrayList<>();
-    String query = "SELECT idSlot, platNomor,tanggal, entryTime, exitTime, " +
-                   "TIMESTAMPDIFF(MINUTE, entryTime, exitTime) AS durasiParkir " +
-                   "FROM history_parkir WHERE platNomor LIKE ?";
+            preparedStatement.setString(1, "%" + plateNumber + "%");
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-    try (PreparedStatement preparedStatement = connect.prepareStatement(query)) {
+            while (resultSet.next()) {
+                String slot = resultSet.getString("idSlot");
+                String platNomor = resultSet.getString("platNomor");
+                String username = resultSet.getString("username"); // Ambil username
+                String tanggal = resultSet.getString("tanggal");
+                String waktuMasuk = resultSet.getString("entryTime");
+                String waktuKeluar = resultSet.getString("exitTime");
+                int durasiParkir = resultSet.getInt("durasiParkir"); // Durasinya dalam menit
 
-        preparedStatement.setString(1, "%" + plateNumber + "%");
-        ResultSet resultSet = preparedStatement.executeQuery();
+                // Format durasi parkir dalam menit
+                String durasiParkirString = durasiParkir + " menit";
 
-        while (resultSet.next()) {
-            String slot = resultSet.getString("idSlot");
-            String platNomor = resultSet.getString("platNomor");
-            String tanggal = resultSet.getString("tanggal");
-            String waktuMasuk = resultSet.getString("entryTime");
-            String waktuKeluar = resultSet.getString("exitTime");
-            String durasiParkir = resultSet.getString("durasiParkir") + " menit";
-
-            filteredList.add(new String[]{slot, platNomor, tanggal, waktuMasuk, waktuKeluar, durasiParkir});
+                // Tambahkan data ke dalam list
+                filteredList.add(new String[]{slot, platNomor, username, tanggal, waktuMasuk, waktuKeluar, durasiParkirString});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+
+        return filteredList;
     }
+    
+    public List<String[]> historyParkingCustomer(String idUser) {
+        List<String[]> filteredList = new ArrayList<>();
+        String query = "SELECT idSlot, idUser, platNomor,tanggal, entryTime, exitTime, " +
+                       "TIMESTAMPDIFF(MINUTE, entryTime, exitTime) AS durasiParkir " +
+                       "FROM history_parkir WHERE idUser LIKE ?";
 
-    return filteredList;
-}
-public List<String[]> searchParkingHistoryByIdUser(String idUser) {
-    List<String[]> filteredList = new ArrayList<>();
-    String query = "SELECT idSlot, idUser, platNomor,tanggal, entryTime, exitTime, " +
-                   "TIMESTAMPDIFF(MINUTE, entryTime, exitTime) AS durasiParkir " +
-                   "FROM history_parkir WHERE idUser LIKE ?";
+        try (PreparedStatement preparedStatement = connect.prepareStatement(query)) {
 
-    try (PreparedStatement preparedStatement = connect.prepareStatement(query)) {
+            preparedStatement.setString(1, "%" + idUser + "%");
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-        preparedStatement.setString(1, "%" + idUser + "%");
-        ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                String slot = resultSet.getString("idSlot");
+                String platNomor = resultSet.getString("platNomor");
+                String tanggal = resultSet.getString("tanggal");
+                String waktuMasuk = resultSet.getString("entryTime");
+                String waktuKeluar = resultSet.getString("exitTime");
+                String durasiParkir = resultSet.getString("durasiParkir") + " menit";
 
-        while (resultSet.next()) {
-            String slot = resultSet.getString("idSlot");
-            String platNomor = resultSet.getString("platNomor");
-            String tanggal = resultSet.getString("tanggal");
-            String waktuMasuk = resultSet.getString("entryTime");
-            String waktuKeluar = resultSet.getString("exitTime");
-            String durasiParkir = resultSet.getString("durasiParkir") + " menit";
-
-            filteredList.add(new String[]{slot, platNomor, tanggal, waktuMasuk, waktuKeluar, durasiParkir});
+                filteredList.add(new String[]{slot, platNomor, tanggal, waktuMasuk, waktuKeluar, durasiParkir});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
 
-    return filteredList;
-}
+        return filteredList;
+    }
+    
+    // Metode untuk memperbarui data pengguna di database
+    public void updateUserDataInDatabase(String userId, String newUsername, String newPassword, String newStatus) {
+        String query = "UPDATE user SET username = ?, password = ?, status = ? WHERE idUser = ?";
+        try (PreparedStatement stmt = connect.prepareStatement(query)) {
+            // Mengatur parameter untuk query
+            stmt.setString(1, newUsername);
+            stmt.setString(2, newPassword);
+            stmt.setString(3, newStatus);
+            stmt.setString(4, userId);
+
+            // Eksekusi update
+            int rowsUpdated = stmt.executeUpdate();
+
+            // Cek apakah update berhasil
+            if (rowsUpdated > 0) {
+                JOptionPane.showMessageDialog(null, "Data pengguna berhasil diperbarui!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null, "Gagal memperbarui data pengguna!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SQLException e) {
+            // Menangani exception jika terjadi error saat mengupdate database
+            JOptionPane.showMessageDialog(null, "Terjadi kesalahan saat memperbarui data pengguna!\n" + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
 }

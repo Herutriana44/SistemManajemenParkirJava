@@ -7,7 +7,7 @@ import javax.swing.JPanel;
 public class LahanParkirAdmin extends javax.swing.JFrame {
     RoleModel roleModel;
     
-    public JPanel getPanel(String idSlot){
+    private JPanel getPanel(String idSlot){
         switch (idSlot) {
             case "A1": return panelA1;
             case "A2": return panelA2;
@@ -45,11 +45,11 @@ public class LahanParkirAdmin extends javax.swing.JFrame {
         }        
     }
     
-    public void refreshColour(String idSlot){
+    private void refreshColour(String idSlot){
         getPanel(idSlot).setBackground(roleModel.tersedia(idSlot) ? Color.GREEN : Color.RED);
     }
     
-    public void refreshColourAll(){
+    private void refreshColourAll(){
         try {
             char[] prefixes = {'A', 'B', 'C', 'D'};
 

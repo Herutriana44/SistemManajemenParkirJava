@@ -1,4 +1,6 @@
 package smartPark;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.table.DefaultTableModel;
 
 public class HistoryParkirAdmin extends javax.swing.JFrame {
@@ -9,6 +11,15 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
         setTitle("History Admin");
         roleModel = new RoleModel();
         loadParkingHistory();
+        cariTF.addMouseListener(new MouseAdapter() {
+        private boolean clicked = false;
+            public void mouseClicked(MouseEvent e) {
+                if (!clicked) {
+                    cariTF.setText("");
+                    clicked = true;
+                }
+            }
+        });
     }
 
     /**
@@ -26,7 +37,7 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jTextField1 = new javax.swing.JTextField();
+        cariTF = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         searchBtn = new javax.swing.JButton();
         kembaliBT = new javax.swing.JButton();
@@ -57,18 +68,23 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "Slot", "Plat Nomor", "Tanggal", "Waktu Masuk", "Waktu Keluar", "Durasi Parkir"
+                "Slot", "Plat Nomor", "username", "Tanggal", "Waktu Masuk", "Waktu Keluar", "Durasi Parkir"
             }
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        jTextField1.setText("*Bedasarkan Plat Nomor");
+        cariTF.setText("*Bedasarkan Plat Nomor");
+        cariTF.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cariTFActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("Cari");
 
@@ -99,7 +115,7 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
                         .addGap(12, 12, 12)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cariTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(searchBtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -113,7 +129,7 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 386, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cariTF, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
                     .addComponent(searchBtn)
                     .addComponent(kembaliBT))
@@ -158,7 +174,7 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
     private void kembaliBTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kembaliBTActionPerformed
         // TODO add your handling code here:
         dispose();
-        new LahanParkirAdmin().setVisible(true);
+        new PilihanAdmin().setVisible(true);
     }//GEN-LAST:event_kembaliBTActionPerformed
 
     private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
@@ -166,44 +182,69 @@ public class HistoryParkirAdmin extends javax.swing.JFrame {
         searchByPlateNumber();
     }//GEN-LAST:event_searchBtnActionPerformed
 
+    private void cariTFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cariTFActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_cariTFActionPerformed
+
     /**
      * @param args the command line arguments
      */
+    // Subclass untuk membuat DefaultTableModel yang read-only
+DefaultTableModel model = new DefaultTableModel() {
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        // Semua sel tidak bisa diubah
+        return false;
+    }
+};
+
     private void loadParkingHistory() {
-    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-    model.setRowCount(0); // Clear existing rows
+        // Gunakan model read-only di atas
+        model = new DefaultTableModel(new String[]{"Slot", "Plat Nomor", "Username", "Tanggal", "Waktu Masuk", "Waktu Keluar", "Durasi Parkir"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // Semua sel tidak bisa diubah
+                return false;
+            }
+        };
 
-    // Fetch parking history and populate the table
-    for (String[] history : roleModel.getParkingHistory()) {
-        model.addRow(new Object[]{
-            history[0], // Slot
-            history[1], // Plat Nomor
-            history[2], // Tanggal
-            history[3], // Waktu Masuk
-            history[4], // Waktu Keluar
-            history[5]  // Durasi Parkir
-        });
+        jTable1.setModel(model); // Set model untuk JTable
+        model.setRowCount(0); // Clear existing rows
+
+        // Fetch parking history and populate the table
+        for (String[] history : roleModel.getParkingHistory()) {
+            model.addRow(new Object[]{
+                history[0], // Slot
+                history[1], // Plat Nomor
+                history[2], // Username
+                history[3], // Tanggal
+                history[4], // Waktu Masuk
+                history[5],  // Waktu Keluar
+                history[6]  // Durasi Parkir
+            });
+        }
     }
-}
 
-// Search Method to filter by "Plat Nomor"
-private void searchByPlateNumber() {
-    String searchKey = jTextField1.getText().trim();
-    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
-    model.setRowCount(0); // Clear existing data
+    // Search Method to filter by "Plat Nomor"
+    private void searchByPlateNumber() {
+        String searchKey = cariTF.getText().trim();
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0); // Clear existing data
 
-    // Fetch filtered parking history and populate the table
-    for (String[] history : roleModel.searchParkingHistoryByPlateNumber(searchKey)) {
-        model.addRow(new Object[]{
-            history[0], // Slot
-            history[1], // Plat Nomor
-            history[2], // Tanggal
-            history[3], // Waktu Masuk
-            history[4], // Waktu Keluar
-            history[5]  // Durasi Parkir
-        });
+        // Fetch filtered parking history and populate the table
+        for (String[] history : roleModel.searchParkingHistoryByPlateNumber(searchKey)) {
+            model.addRow(new Object[]{
+                history[0], // Slot
+                history[1], // Plat Nomor
+                history[2], // Username
+                history[3], // Tanggal
+                history[4], // Waktu Masuk
+                history[5],  // Waktu Keluar
+                history[6]  // Durasi Parkir
+            });
+        }
     }
-}
 
 // Call this method in the constructor or when the "Tampilkan Data" button is clicked
 //private void tampilkanDataActionPerformed(java.awt.event.ActionEvent evt) {
@@ -251,6 +292,7 @@ private void searchByPlateNumber() {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField cariTF;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
@@ -258,7 +300,6 @@ private void searchByPlateNumber() {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JButton kembaliBT;
     private javax.swing.JButton searchBtn;
     // End of variables declaration//GEN-END:variables
